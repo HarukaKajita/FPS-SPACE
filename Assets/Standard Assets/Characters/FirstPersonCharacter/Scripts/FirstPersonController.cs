@@ -42,6 +42,9 @@ namespace UnityStandardAssets.Characters.FirstPerson
         private bool m_Jumping;
         private AudioSource m_AudioSource;
 
+		private bool m_crouch;//しゃがんでいるかどうか。true->しゃがんでいる。false->しゃがんでいない。
+		private int m_speeddown;//しゃがんだ時に低下する移動速度
+
         // Use this for initialization
         private void Start()
         {
@@ -55,6 +58,9 @@ namespace UnityStandardAssets.Characters.FirstPerson
             m_Jumping = false;
             m_AudioSource = GetComponent<AudioSource>();
 			m_MouseLook.Init(transform , m_Camera.transform);
+
+			m_crouch = false; //最初はしゃがんでいないのでfalseで初期化
+			m_speeddown = 3;//初期スピード5で、3減速させて
         }
 
 
@@ -81,6 +87,20 @@ namespace UnityStandardAssets.Characters.FirstPerson
             }
 
             m_PreviouslyGrounded = m_CharacterController.isGrounded;
+//----------------------------------------------------------------------------------------
+			if(CrossPlatformInputManager.GetButtonDown("Crouch")){
+				if(m_crouch == false){
+					transform.localScale = new Vector3 (1, 0.5f, 1);
+					m_WalkSpeed -= m_speeddown;
+					m_crouch = true;
+				} else {
+					transform.localScale = new Vector3 (1, 1, 1);
+					m_WalkSpeed += m_speeddown;
+					m_crouch = false;
+				}
+
+			}
+//----------------------------------------------------------------------------------------
         }
 
 
@@ -113,13 +133,15 @@ namespace UnityStandardAssets.Characters.FirstPerson
             {
                 m_MoveDir.y = -m_StickToGroundForce;
 
-                if (m_Jump)
+				if (m_Jump && m_crouch == false)
                 {
                     m_MoveDir.y = m_JumpSpeed;
                     PlayJumpSound();
                     m_Jump = false;
                     m_Jumping = true;
                 }
+
+			
             }
             else
             {
