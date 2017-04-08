@@ -42,8 +42,9 @@ namespace UnityStandardAssets.Characters.FirstPerson
 		private bool m_Jumping;
 		private AudioSource m_AudioSource;
 
-		private bool m_crouch;//しゃがんでいるかどうか。true->しゃがんでいる。false->しゃがんでいない。
-		private int m_speeddown;//しゃがんだ時に低下する移動速度
+		private bool m_Crouch;//しゃがんでいるかどうか。true->しゃがんでいる。false->しゃがんでいない。
+		private int m_SpeedDown;//しゃがんだ時に低下する移動速度
+		private GameObject m_Child;//子要素のFirstPersonCharacter
 
 		// Use this for initialization
 		private void Start()
@@ -59,8 +60,9 @@ namespace UnityStandardAssets.Characters.FirstPerson
 			m_AudioSource = GetComponent<AudioSource>();
 			m_MouseLook.Init(transform , m_Camera.transform);
 
-			m_crouch = false; //最初はしゃがんでいないのでfalseで初期化
-			m_speeddown = 3;//初期スピード5で、3減速させて
+			m_Crouch = false; //最初はしゃがんでいないのでfalseで初期化
+			m_SpeedDown = 3;//初期スピード5で、3減速させて
+			m_Child = transform.GetChild(0).gameObject;//子要素のFirstPersonCharacter
 		}
 
 
@@ -69,7 +71,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 		{
 			RotateView();
 			// the jump state needs to read here to make sure it is not missed
-			if (!m_Jump  && !m_crouch)//しゃがんでいる時はジャンプはできないようにする
+			if (!m_Jump  && !m_Crouch)//しゃがんでいる時はジャンプはできないようにする
 			{
 				m_Jump = CrossPlatformInputManager.GetButtonDown("Jump");
 			}
@@ -88,19 +90,24 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
 			m_PreviouslyGrounded = m_CharacterController.isGrounded;
 			//----------------------------------------------------------------------------------------
-			if(CrossPlatformInputManager.GetButtonDown("Crouch")){
-				if(m_crouch == false){
-					transform.localScale = new Vector3 (1, 0.5f, 1);
-					m_WalkSpeed -= m_speeddown;
-					m_crouch = true;
-				} else {
-					transform.localScale = new Vector3 (1, 1, 1);
-					m_WalkSpeed += m_speeddown;
-					m_crouch = false;
-				}
+			if(CrossPlatformInputManager.GetButtonDown("Crouch")){//cを押すとしゃがむ。もう一度押すと立つ。
+				
+				if(m_Crouch == false){
+					m_WalkSpeed -= m_SpeedDown;
+					m_Crouch = true;
 
+				} else {
+					m_WalkSpeed += m_SpeedDown;
+					m_Crouch = false;
+
+				}
+			}
+
+			if(m_Crouch){
+				m_Child.transform.localPosition = new Vector3 (0, 0.4f, 0);//カメラコンポーネントを持つFirstPersonCharacterのlocalPositionを編集してしゃがみを表現する。
 			}
 			//----------------------------------------------------------------------------------------
+
 		}
 
 
