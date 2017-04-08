@@ -43,8 +43,9 @@ namespace UnityStandardAssets.Characters.FirstPerson
 		private AudioSource m_AudioSource;
 
 		private bool m_Crouch;//しゃがんでいるかどうか。true->しゃがんでいる。false->しゃがんでいない。
-		private int m_SpeedDown;//しゃがんだ時に低下する移動速度
+		private int m_CrouchSpeed;//しゃがんだ時の移動速度
 		private GameObject m_Child;//子要素のFirstPersonCharacter
+		private int m_defaultWalkSpeed;
 
 		// Use this for initialization
 		private void Start()
@@ -60,9 +61,9 @@ namespace UnityStandardAssets.Characters.FirstPerson
 			m_AudioSource = GetComponent<AudioSource>();
 			m_MouseLook.Init(transform , m_Camera.transform);
 
-			m_Crouch = false; //最初はしゃがんでいないのでfalseで初期化
-			m_SpeedDown = 3;//初期スピード5で、3減速させて
+			m_CrouchSpeed = 3;//初期スピード5で、3減速させて
 			m_Child = transform.GetChild(0).gameObject;//子要素のFirstPersonCharacter
+			m_defaultWalkSpeed = 5;
 		}
 
 
@@ -90,22 +91,16 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
 			m_PreviouslyGrounded = m_CharacterController.isGrounded;
 			//----------------------------------------------------------------------------------------
-			if(CrossPlatformInputManager.GetButtonDown("Crouch")){//cを押すとしゃがむ。もう一度押すと立つ。
-				
-				if(m_Crouch == false){
-					m_WalkSpeed -= m_SpeedDown;
-					m_Crouch = true;
+			if(Input.GetKey("c")){//cを押すとしゃがむ。もう一度押すと立つ。
+				m_Child.transform.localPosition = new Vector3 (0, 0.4f, 0);//カメラコンポーネントを持つFirstPersonCharacterのlocalPositionを編集してしゃがみを表現する
+				m_Crouch = true;
 
-				} else {
-					m_WalkSpeed += m_SpeedDown;
-					m_Crouch = false;
-
-				}
+			}else{
+				m_Crouch = false;
 			}
+			m_WalkSpeed = m_Crouch ? m_CrouchSpeed : m_defaultWalkSpeed;
+			//if(Input.GetButtonUp("Crouch"))
 
-			if(m_Crouch){
-				m_Child.transform.localPosition = new Vector3 (0, 0.4f, 0);//カメラコンポーネントを持つFirstPersonCharacterのlocalPositionを編集してしゃがみを表現する。
-			}
 			//----------------------------------------------------------------------------------------
 
 		}
@@ -245,6 +240,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 			#endif
 			// set the desired speed to be walking or running
 			speed = m_IsWalking ? m_WalkSpeed : m_RunSpeed;
+
 			m_Input = new Vector2(horizontal, vertical);
 
 			// normalize input if it exceeds 1 in combined length:
