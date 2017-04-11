@@ -28602,9 +28602,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fire: {fileID: 8300000, guid: 8602b7d5cd15c1943a50aa53f171c8cf, type: 3}
-  particlePrefab: {fileID: 1562480864431258, guid: db0c6844488af4c2bafd8b1984f32fcc,
-    type: 2}
-  muzzleEffectPrefab: {fileID: 1869226186287310, guid: ff3a2bd1b26604da4862207d003dbe35,
+  reload: {fileID: 8300000, guid: 3c5c1d4d7b9307c458890a4beb12e4ae, type: 3}
+  EffectPrefab: {fileID: 1869226186287310, guid: ff3a2bd1b26604da4862207d003dbe35,
     type: 2}
 --- !u!1 &1825825693
 GameObject:
