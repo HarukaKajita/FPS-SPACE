@@ -74,8 +74,8 @@ public class BulletController : MonoBehaviour {
 		if(Input.GetKeyDown("r") && bulletBoxNum > 0 && bulletNum < maxBulletNum){
 			onReloading = true;        //リロード時に少しの間撃てなくなる
 			gunAudioSource.PlayOneShot (reload, 1.0f);
-			bulletBoxNum--;            //装弾数を上限値まで増やす。
-			bulletNum = maxBulletNum;  //弾倉数を減らす。
+			bulletBoxNum--;            //弾倉数を減らす。
+			bulletNum = maxBulletNum;  //装弾数を上限値まで増やす。
 			Invoke ("FinishReloading", 2.1f);//リロード音がなっている間は撃てないようにしたいから2.1
 		}
 	}
