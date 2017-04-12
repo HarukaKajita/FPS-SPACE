@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class BulletController : MonoBehaviour {
 
-	private int bulletNum;  //弾数
-	private int bulletBoxNum;  //弾倉数
+	public int bulletNum;  //弾数
+	public int bulletBoxNum;  //弾倉数
 	private int maxBulletNum;  //装弾上限数
 	private float coolTime;  //クールタイム
 	private float effectLifeTime; //パーティクルの継続時間
@@ -40,14 +40,14 @@ public class BulletController : MonoBehaviour {
 		if(Input.GetMouseButtonDown(0) && canShot == true && bulletNum > 0 && onReloading == false){
 
 			gunAudioSource.PlayOneShot (fire, 1.0f);  //発砲音再生
-			muzzleEffect = (GameObject)Instantiate(EffectPrefab);
-			muzzleEffect.transform.parent = transform;
+			muzzleEffect = (GameObject)Instantiate(EffectPrefab);  //銃口にエフェクト
+			muzzleEffect.transform.parent = transform;  
 			muzzleEffect.transform.localPosition = muzzleEffectPosition;
-			muzzleEffect.transform.rotation = transform.rotation;
+			muzzleEffect.transform.rotation = transform.rotation;//エフェクトの見え方がプレイヤーの向きに依存しないようにする
 			bulletNum --;  //撃てば弾が減る
 
 			Ray gunRay = Camera.main.ViewportPointToRay (new Vector3 (0.5f, 0.5f, 0.0f));  //画面中央からRayを飛ばす
-			Invoke("DestroyMuzzleEffect", effectLifeTime);
+			Invoke("DestroyMuzzleEffect", effectLifeTime);//銃口のエフェクトは少し経ったら消える
 
 			//クールタイム
 			canShot = false;
@@ -74,8 +74,10 @@ public class BulletController : MonoBehaviour {
 		if(Input.GetKeyDown("r") && bulletBoxNum > 0 && bulletNum < maxBulletNum){
 			onReloading = true;        //リロード時に少しの間撃てなくなる
 			gunAudioSource.PlayOneShot (reload, 1.0f);
-			bulletBoxNum--;            //弾倉数を減らす。
-			bulletNum = maxBulletNum;  //装弾数を上限値まで増やす。
+			while(bulletNum < maxBulletNum && bulletBoxNum > 0){
+				bulletNum++;
+				bulletBoxNum--;
+			}
 			Invoke ("FinishReloading", 2.1f);//リロード音がなっている間は撃てないようにしたいから2.1
 		}
 	}
