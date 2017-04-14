@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 64946609530851152}
   - component: {fileID: 23558080419914294}
   m_Layer: 0
-  m_Name: Quad
+  m_Name: FireEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
