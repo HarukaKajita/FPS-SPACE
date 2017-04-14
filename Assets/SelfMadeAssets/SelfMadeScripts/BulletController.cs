@@ -16,9 +16,14 @@ public class BulletController : MonoBehaviour {
 	private GameObject landingEffect;  //着弾時のエフェクト
 	private GameObject muzzleEffect;  //銃口のエフェクト
 	private Vector3 muzzleEffectPosition;  //銃口エフェクトのポジション
-	private Vector3 landingEffectScale;
+	private Vector3 detail;  //着弾エフェクト生成座標の微調整のために定義
+	private Vector3 landingEffectPosition;  //着弾エフェクト生成座標
 	private bool canShot = true;  //銃を撃てる状態かどうか
-	private bool onReloading = false;
+	private bool onReloading = false; //リロード中かどうか
+	public int score;  //スコア
+	private Vector3 maxScoreSpot;  //弾が当たった点がこの変数が示す点に近い方が得られるスコアが高くなる
+	public Transform HeadMarker;  //maxScoreSpotの値を定義するためにターゲット自体のポジションを使う
+	public TargetController target;
 
 	void Start () {
 		maxBulletNum = 30;
@@ -28,6 +33,9 @@ public class BulletController : MonoBehaviour {
 		effectLifeTime = 0.2f;
 		gunAudioSource = GetComponent<AudioSource> ();
 		muzzleEffectPosition = new Vector3 (0, 0.1f, 0.853f);
+		score = 0;
+		maxScoreSpot = new Vector3(HeadMarker.position.x, HeadMarker.position.y + 1.55f, HeadMarker.position.z);
+		landingEffectPosition = new Vector3();
 	}
 	
 	void Update () {
@@ -56,9 +64,37 @@ public class BulletController : MonoBehaviour {
 
 			RaycastHit hit;
 			if(Physics.Raycast(gunRay, out hit)){//Rayのヒット判定
-				//ヒットした点にエフェクト生成見やすくするためにポシションをプレイヤーに少し近づくように設定してある
-				landingEffect = (GameObject)Instantiate(EffectPrefab, hit.point + (transform.position - hit.point).normalized, Quaternion.identity);
+				//ベクトルの足し算だと微妙に位置がおかしくなることと
+				//Update関数内でnewでメモリを確保するとメモリリークの原因になるのかなと思って回りくどい書き方になっています
+				detail.x = (transform.position - hit.point).normalized.x * 0.2f;
+				detail.y = (transform.position - hit.point).normalized.y * 0.2f;
+				detail.z = (transform.position - hit.point).normalized.z * 0.2f;
+
+				landingEffectPosition.x = hit.point.x + detail.x;
+				landingEffectPosition.y = hit.point.y + detail.y;
+				landingEffectPosition.z = hit.point.z + detail.z;
+
+				//ヒットした点にエフェクト生成見やすくするためにポシションをプレイヤーに少し近づくように設定してある(欠陥あり)
+				landingEffect = (GameObject)Instantiate(EffectPrefab, landingEffectPosition , transform.rotation);
 				landingEffect.transform.rotation = transform.rotation;
+
+				if(hit.collider.gameObject.tag == "Target"){  //弾がターゲットに当たった場合
+					float distance = Vector3.Distance(maxScoreSpot, hit.point);  //スコアを決める基準点からの距離
+					target.life--;
+					if(distance < 0.2 ){
+						score += 100;
+					}else if(distance < 0.4){
+						score += 80;
+					}else if(distance < 0.6){
+						score += 60;
+					}else if(distance < 0.8){
+						score += 40;
+					}else if(distance < 1.0){
+						score += 20;
+					}else if(distance < 1.6){
+						score += 10;
+					}
+				}
 
 				//エフェクトをDestroy
 				Invoke("DestroyLandingEffect", effectLifeTime);
