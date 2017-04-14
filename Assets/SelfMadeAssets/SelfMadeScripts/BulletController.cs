@@ -20,10 +20,10 @@ public class BulletController : MonoBehaviour {
 	private Vector3 landingEffectPosition;  //着弾エフェクト生成座標
 	private bool canShot = true;  //銃を撃てる状態かどうか
 	private bool onReloading = false; //リロード中かどうか
-	public int score;  //スコア
 	private Vector3 maxScoreSpot;  //弾が当たった点がこの変数が示す点に近い方が得られるスコアが高くなる
 	public Transform HeadMarker;  //maxScoreSpotの値を定義するためにターゲット自体のポジションを使う
-	public TargetController target;
+	private ScoreController scoreController;  //スコア管理のスクリプト
+	private TargetController targetController;  //ターゲット管理のスクリプト
 
 	void Start () {
 		maxBulletNum = 30;
@@ -33,7 +33,6 @@ public class BulletController : MonoBehaviour {
 		effectLifeTime = 0.2f;
 		gunAudioSource = GetComponent<AudioSource> ();
 		muzzleEffectPosition = new Vector3 (0, 0.1f, 0.853f);
-		score = 0;
 		maxScoreSpot = new Vector3(HeadMarker.position.x, HeadMarker.position.y + 1.55f, HeadMarker.position.z);
 		landingEffectPosition = new Vector3();
 	}
@@ -78,23 +77,20 @@ public class BulletController : MonoBehaviour {
 				landingEffect = (GameObject)Instantiate(EffectPrefab, landingEffectPosition , transform.rotation);
 				landingEffect.transform.rotation = transform.rotation;
 
-				if(hit.collider.gameObject.tag == "Target"){  //弾がターゲットに当たった場合
+				print (hit.collider.gameObject);
+				//-------スコアに関する処理-------------
+				scoreController = hit.collider.transform.parent.GetComponent<ScoreController> ();
+				if(scoreController != null){
 					float distance = Vector3.Distance(maxScoreSpot, hit.point);  //スコアを決める基準点からの距離
-					target.life--;
-					if(distance < 0.2 ){
-						score += 100;
-					}else if(distance < 0.4){
-						score += 80;
-					}else if(distance < 0.6){
-						score += 60;
-					}else if(distance < 0.8){
-						score += 40;
-					}else if(distance < 1.0){
-						score += 20;
-					}else if(distance < 1.6){
-						score += 10;
-					}
+					scoreController.GetScore(distance);  //スコアを得るメソッドの呼び出し。引数はスコアを決めるための距離
 				}
+
+				//-------ターゲットのライフに関する処理----
+				targetController = hit.collider.transform.parent.GetComponent<TargetController> ();
+				if(targetController != null){
+					targetController.GetDamaged();//ターゲットがダメージを受ける
+				}
+
 
 				//エフェクトをDestroy
 				Invoke("DestroyLandingEffect", effectLifeTime);

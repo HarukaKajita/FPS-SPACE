@@ -26,4 +26,8 @@ public class TargetController : MonoBehaviour {
 	void UpTarget(){
 		anim.SetBool ("broken", false);
 	}
+
+	public void GetDamaged(){
+		life--;
+	}
 }
