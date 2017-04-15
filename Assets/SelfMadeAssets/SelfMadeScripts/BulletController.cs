@@ -77,7 +77,6 @@ public class BulletController : MonoBehaviour {
 				landingEffect = (GameObject)Instantiate(EffectPrefab, landingEffectPosition , transform.rotation);
 				landingEffect.transform.rotation = transform.rotation;
 
-				print (hit.collider.gameObject);
 				//-------スコアに関する処理-------------
 				scoreController = hit.collider.transform.parent.GetComponent<ScoreController> ();
 				if(scoreController != null){
