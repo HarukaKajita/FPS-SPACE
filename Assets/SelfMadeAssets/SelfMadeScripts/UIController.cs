@@ -12,6 +12,7 @@ public class UIController : MonoBehaviour {
 	public Text timerText;
 	public Text bulletNumText;
 	public Text bulletBoxNumText;
+	public Image snipeImage;
 
 	public int scoreNum;
 	private float timer;
@@ -40,5 +41,13 @@ public class UIController : MonoBehaviour {
 		bulletNumText.text = "Bullet:" + bulletNum;
 		bulletBoxNumText.text = "BulletBox:" + bulletBoxNum;
 	
+	}
+
+	public void snipeImageEnabled(){
+		snipeImage.enabled = true;
+	}
+
+	public void snipeImageNotEnabled(){
+		snipeImage.enabled = false;
 	}
 }

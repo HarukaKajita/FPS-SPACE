@@ -24,6 +24,8 @@ public class BulletController : MonoBehaviour {
 	public Transform HeadMarker;  //maxScoreSpotの値を定義するためにターゲット自体のポジションを使う
 	private ScoreController scoreController;  //スコア管理のスクリプト
 	private TargetController targetController;  //ターゲット管理のスクリプト
+	public UIController uiController;  //スナイプ時のスナイプ画面のImage表示のため
+	private bool OnSniping = false;
 
 	void Start () {
 		maxBulletNum = 30;
@@ -38,6 +40,28 @@ public class BulletController : MonoBehaviour {
 	}
 	
 	void Update () {
+
+
+		if(Input.GetMouseButtonDown(1)){  //時スナイプモード
+			if (OnSniping == false) {
+				OnSniping = true;
+				//視野角を狭くすることで遠くを見えるようにする
+				Camera.main.fieldOfView = 25;
+				//スコープ画像をアクティブに
+				uiController.snipeImageEnabled ();
+
+			} else {  //スナイプ解除
+				OnSniping = false;
+				//視野をデフォルトに
+				Camera.main.ResetFieldOfView ();
+				//スコープ画像を非アクティブに
+				uiController.snipeImageNotEnabled ();
+			}
+
+		}/* else {
+			Camera.main.ResetFieldOfView();
+			uiController.snipeImageNotEnabled ();
+		}*/
 		/*クリック判定
 		 * 1.撃てる状態である
 		 * 2.弾が装填されている
@@ -62,7 +86,7 @@ public class BulletController : MonoBehaviour {
 
 
 			RaycastHit hit;
-			if(Physics.Raycast(gunRay, out hit)){//Rayのヒット判定
+			if (Physics.Raycast (gunRay, out hit)) {//Rayのヒット判定
 				//ベクトルの足し算だと微妙に位置がおかしくなることと
 				//Update関数内でnewでメモリを確保するとメモリリークの原因になるのかなと思って回りくどい書き方になっています
 				detail.x = (transform.position - hit.point).normalized.x * 0.2f;
@@ -74,25 +98,25 @@ public class BulletController : MonoBehaviour {
 				landingEffectPosition.z = hit.point.z + detail.z;
 
 				//ヒットした点にエフェクト生成見やすくするためにポシションをプレイヤーに少し近づくように設定してある(欠陥あり)
-				landingEffect = (GameObject)Instantiate(EffectPrefab, landingEffectPosition , transform.rotation);
+				landingEffect = (GameObject)Instantiate (EffectPrefab, landingEffectPosition, transform.rotation);
 				landingEffect.transform.rotation = transform.rotation;
 
 				//-------スコアに関する処理-------------
 				scoreController = hit.collider.transform.parent.GetComponent<ScoreController> ();
-				if(scoreController != null){
-					float distance = Vector3.Distance(maxScoreSpot, hit.point);  //スコアを決める基準点からの距離
-					scoreController.GetScore(distance);  //スコアを得るメソッドの呼び出し。引数はスコアを決めるための距離
+				if (scoreController != null) {
+					float distance = Vector3.Distance (maxScoreSpot, hit.point);  //スコアを決める基準点からの距離
+					scoreController.GetScore (distance);  //スコアを得るメソッドの呼び出し。引数はスコアを決めるための距離
 				}
 
 				//-------ターゲットのライフに関する処理----
 				targetController = hit.collider.transform.parent.GetComponent<TargetController> ();
-				if(targetController != null){
-					targetController.GetDamaged();//ターゲットがダメージを受ける
+				if (targetController != null) {
+					targetController.GetDamaged ();//ターゲットがダメージを受ける
 				}
 
 
 				//エフェクトをDestroy
-				Invoke("DestroyLandingEffect", effectLifeTime);
+				Invoke ("DestroyLandingEffect", effectLifeTime);
 			}
 		}
 
