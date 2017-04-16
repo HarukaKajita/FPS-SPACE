@@ -57,10 +57,7 @@ public class BulletController : MonoBehaviour {
 				uiController.snipeImageNotEnabled ();
 			}
 
-		}/* else {
-			Camera.main.ResetFieldOfView();
-			uiController.snipeImageNotEnabled ();
-		}*/
+		}
 		/*クリック判定
 		 * 1.撃てる状態である
 		 * 2.弾が装填されている
