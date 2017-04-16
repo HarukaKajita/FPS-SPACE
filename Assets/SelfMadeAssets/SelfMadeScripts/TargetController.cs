@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class TargetController : MonoBehaviour {
 
-	public int life;
-	private int defaultLife;
-	private Animator anim;
+	[SerializeField] private int life;
+	[SerializeField] private int defaultLife;
+	[SerializeField] private Animator anim;
 	// Use this for initialization
 	void Start () {
 		defaultLife = 5;
