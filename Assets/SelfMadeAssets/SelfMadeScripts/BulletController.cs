@@ -6,24 +6,25 @@ public class BulletController : MonoBehaviour {
 
 	public int bulletNum;  //弾数
 	public int bulletBoxNum;  //弾倉数
-	private int maxBulletNum;  //装弾上限数
-	private float coolTime;  //クールタイム
-	private float effectLifeTime; //パーティクルの継続時間
-	private AudioSource gunAudioSource;  //発砲音のスピーカー
-	public AudioClip fire;  //発砲音
-	public AudioClip reload;//リロード音
-	public GameObject EffectPrefab;  //エフェクトのプレハブ
-	private GameObject landingEffect;  //着弾時のエフェクト
-	private GameObject muzzleEffect;  //銃口のエフェクト
-	private Vector3 muzzleEffectPosition;  //銃口エフェクトのポジション
-	private Vector3 detail;  //着弾エフェクト生成座標の微調整のために定義
-	private Vector3 landingEffectPosition;  //着弾エフェクト生成座標
-	private bool canShot = true;  //銃を撃てる状態かどうか
-	private bool onReloading = false; //リロード中かどうか
-	private Vector3 maxScoreSpot;  //弾が当たった点がこの変数が示す点に近い方が得られるスコアが高くなる
-	public Transform HeadMarker;  //maxScoreSpotの値を定義するためにターゲット自体のポジションを使う
-	private ScoreController scoreController;  //スコア管理のスクリプト
-	private TargetController targetController;  //ターゲット管理のスクリプト
+	[SerializeField] private int maxBulletNum;  //装弾上限数
+	[SerializeField] private float coolTime;  //クールタイム
+	[SerializeField] private float effectLifeTime; //パーティクルの継続時間
+	[SerializeField] private AudioSource gunAudioSource;  //発砲音のスピーカー
+	[SerializeField] private AudioClip fire;  //発砲音
+	[SerializeField] private AudioClip reload;//リロード音
+	[SerializeField] private GameObject EffectPrefab;  //エフェクトのプレハブ
+	[SerializeField] private GameObject landingEffect;  //着弾時のエフェクト
+	[SerializeField] private GameObject muzzleEffect;  //銃口のエフェクト
+	[SerializeField] private Vector3 muzzleEffectPosition;  //銃口エフェクトのポジション
+	[SerializeField] private Vector3 landingEffectPosition;  //着弾エフェクト生成座標
+	[SerializeField] private bool canShot = true;  //銃を撃てる状態かどうか
+	[SerializeField] private bool onReloading = false; //リロード中かどうか
+	[SerializeField] private Vector3 maxScoreSpot;  //弾が当たった点がこの変数が示す点に近い方が得られるスコアが高くなる
+	[SerializeField] private Transform HeadMarker;  //maxScoreSpotの値を定義するためにターゲット自体のポジションを使う
+	[SerializeField] private ScoreController scoreController;  //スコア管理のスクリプト
+	[SerializeField] private TargetController targetController;  //ターゲット管理のスクリプト
+	[SerializeField] private UIController uiController;  //スナイプ時のスナイプ画面のImage表示のため
+	[SerializeField] private bool OnSniping = false;
 
 	void Start () {
 		maxBulletNum = 30;
@@ -38,6 +39,25 @@ public class BulletController : MonoBehaviour {
 	}
 	
 	void Update () {
+
+
+		if(Input.GetMouseButtonDown(1)){  //時スナイプモード
+			if (OnSniping == false) {
+				OnSniping = true;
+				//視野角を狭くすることで遠くを見えるようにする
+				Camera.main.fieldOfView = 25;
+				//スコープ画像をアクティブに
+				uiController.snipeImageEnabled ();
+
+			} else {  //スナイプ解除
+				OnSniping = false;
+				//視野をデフォルトに
+				Camera.main.ResetFieldOfView ();
+				//スコープ画像を非アクティブに
+				uiController.snipeImageNotEnabled ();
+			}
+
+		}
 		/*クリック判定
 		 * 1.撃てる状態である
 		 * 2.弾が装填されている
@@ -62,37 +82,29 @@ public class BulletController : MonoBehaviour {
 
 
 			RaycastHit hit;
-			if(Physics.Raycast(gunRay, out hit)){//Rayのヒット判定
-				//ベクトルの足し算だと微妙に位置がおかしくなることと
-				//Update関数内でnewでメモリを確保するとメモリリークの原因になるのかなと思って回りくどい書き方になっています
-				detail.x = (transform.position - hit.point).normalized.x * 0.2f;
-				detail.y = (transform.position - hit.point).normalized.y * 0.2f;
-				detail.z = (transform.position - hit.point).normalized.z * 0.2f;
-
-				landingEffectPosition.x = hit.point.x + detail.x;
-				landingEffectPosition.y = hit.point.y + detail.y;
-				landingEffectPosition.z = hit.point.z + detail.z;
+			if (Physics.Raycast (gunRay, out hit)) {//Rayのヒット判定
 
 				//ヒットした点にエフェクト生成見やすくするためにポシションをプレイヤーに少し近づくように設定してある(欠陥あり)
-				landingEffect = (GameObject)Instantiate(EffectPrefab, landingEffectPosition , transform.rotation);
+				landingEffectPosition =  Vector3.Lerp(hit.point, transform.position, 0.02f);
+				landingEffect = (GameObject)Instantiate (EffectPrefab, landingEffectPosition, transform.rotation);
 				landingEffect.transform.rotation = transform.rotation;
 
-				//-------スコアに関する処理-------------
-				scoreController = hit.collider.transform.parent.GetComponent<ScoreController> ();
-				if(scoreController != null){
-					float distance = Vector3.Distance(maxScoreSpot, hit.point);  //スコアを決める基準点からの距離
-					scoreController.GetScore(distance);  //スコアを得るメソッドの呼び出し。引数はスコアを決めるための距離
-				}
 
-				//-------ターゲットのライフに関する処理----
-				targetController = hit.collider.transform.parent.GetComponent<TargetController> ();
-				if(targetController != null){
-					targetController.GetDamaged();//ターゲットがダメージを受ける
-				}
 
+				if(hit.collider.tag == "Target"){
+					//-------スコアに関する処理-------------
+					float distance = Vector3.Distance (maxScoreSpot, hit.point);  //スコアを決める基準点からの距離
+					scoreController.GetScore (distance);  //スコアを得るメソッドの呼び出し。引数はスコアを決めるための距離
+				
+
+					//-------ターゲットのライフに関する処理----
+					targetController = hit.collider.transform.parent.GetComponent<TargetController> ();
+					targetController.GetDamaged ();//ターゲットがダメージを受ける
+				
+				}
 
 				//エフェクトをDestroy
-				Invoke("DestroyLandingEffect", effectLifeTime);
+				Invoke ("DestroyLandingEffect", effectLifeTime);
 			}
 		}
 

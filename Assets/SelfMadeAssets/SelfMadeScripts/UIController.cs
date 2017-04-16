@@ -5,18 +5,16 @@ using UnityEngine.UI;
 
 public class UIController : MonoBehaviour {
 
-	public ScoreController scoreController;  //UIに表示させる数値の参照元
-	public BulletController bulletController;  //UIに表示させる数値の参照元
+	[SerializeField] private ScoreController scoreController;  //UIに表示させる数値の参照元
+	[SerializeField] private BulletController bulletController;  //UIに表示させる数値の参照元
 
-	public Text scoreText;
-	public Text timerText;
-	public Text bulletNumText;
-	public Text bulletBoxNumText;
+	[SerializeField] private Text scoreText;
+	[SerializeField] private Text timerText;
+	[SerializeField] private Text bulletNumText;
+	[SerializeField] private Text bulletBoxNumText;
+	[SerializeField] private Image snipeImage;
 
-	public int scoreNum;
-	private float timer;
-	public int bulletNum;
-	public int bulletBoxNum;
+	[SerializeField] private float timer;
 
 	// Use this for initialization
 	void Start () {
@@ -31,14 +29,20 @@ public class UIController : MonoBehaviour {
 			timer = 0.0f;
 		}
 
-		scoreNum = scoreController.score;
-		bulletNum = bulletController.bulletNum;
-		bulletBoxNum = bulletController.bulletBoxNum;
 
-		scoreText.text = "Pt:" + scoreNum;
+
+		scoreText.text = "Pt:" + scoreController.score;
 		timerText.text = "Time:" + timer.ToString("0.0") + "s";
-		bulletNumText.text = "Bullet:" + bulletNum;
-		bulletBoxNumText.text = "BulletBox:" + bulletBoxNum;
+		bulletNumText.text = "Bullet:" + bulletController.bulletNum;
+		bulletBoxNumText.text = "BulletBox:" + bulletController.bulletBoxNum;
 	
+	}
+
+	public void snipeImageEnabled(){
+		snipeImage.enabled = true;
+	}
+
+	public void snipeImageNotEnabled(){
+		snipeImage.enabled = false;
 	}
 }
