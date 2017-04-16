@@ -6154,23 +6154,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   life: 0
+  defaultLife: 0
+  anim: {fileID: 0}
 --- !u!4 &412853533 stripped
 Transform:
   m_PrefabParentObject: {fileID: 4664535882959820, guid: aaf4c4db926a84763ac2d63c5872a8c8,
     type: 2}
   m_PrefabInternal: {fileID: 761003555}
---- !u!114 &412853534
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 412853531}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a0473282f18634b168b5ccdb0aed4f6f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  score: 0
 --- !u!1 &416047501
 GameObject:
   m_ObjectHideFlags: 0
@@ -11042,7 +11032,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.000061035156, y: -15}
+  m_AnchoredPosition: {x: 0, y: -15}
   m_SizeDelta: {x: 1, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &727559220
@@ -25315,7 +25305,7 @@ Transform:
   m_PrefabParentObject: {fileID: 400192, guid: 70bd327581f110b4a936db6df5f9ed54, type: 3}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1622421762}
-  m_LocalRotation: {x: 0.6122277, y: -0.36693397, z: -0.5988898, w: -0.36313614}
+  m_LocalRotation: {x: 0.6122276, y: -0.36693394, z: -0.59888977, w: -0.3631361}
   m_LocalPosition: {x: -6.393426, y: 1.3832966, z: 2.7329824}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -29408,12 +29398,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletNum: 0
   bulletBoxNum: 0
+  maxBulletNum: 0
+  coolTime: 0
+  effectLifeTime: 0
+  gunAudioSource: {fileID: 1822263749}
   fire: {fileID: 8300000, guid: 8602b7d5cd15c1943a50aa53f171c8cf, type: 3}
   reload: {fileID: 8300000, guid: 3c5c1d4d7b9307c458890a4beb12e4ae, type: 3}
   EffectPrefab: {fileID: 1869226186287310, guid: ff3a2bd1b26604da4862207d003dbe35,
     type: 2}
+  landingEffect: {fileID: 1869226186287310, guid: ff3a2bd1b26604da4862207d003dbe35,
+    type: 2}
+  muzzleEffect: {fileID: 1869226186287310, guid: ff3a2bd1b26604da4862207d003dbe35,
+    type: 2}
+  muzzleEffectPosition: {x: 0, y: 0, z: 0}
+  detail: {x: 0, y: 0, z: 0}
+  landingEffectPosition: {x: 0, y: 0, z: 0}
+  canShot: 1
+  onReloading: 0
+  maxScoreSpot: {x: 0, y: 0, z: 0}
   HeadMarker: {fileID: 412853533}
+  scoreController: {fileID: 2070541559}
+  targetController: {fileID: 412853532}
   uiController: {fileID: 1896278284}
+  OnSniping: 0
 --- !u!1 &1825825693
 GameObject:
   m_ObjectHideFlags: 0
@@ -30849,16 +30856,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc4fc2163d0f143e5b143a367ba20b29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scoreController: {fileID: 412853534}
+  scoreController: {fileID: 2070541559}
   bulletController: {fileID: 1822263750}
   scoreText: {fileID: 696851192}
   timerText: {fileID: 621039335}
   bulletNumText: {fileID: 2036673871}
   bulletBoxNumText: {fileID: 1059005041}
   snipeImage: {fileID: 529187851}
-  scoreNum: 0
-  bulletNum: 0
-  bulletBoxNum: 0
+  timer: 0
 --- !u!4 &1896278285
 Transform:
   m_ObjectHideFlags: 0
@@ -33901,6 +33906,47 @@ Transform:
 Transform:
   m_PrefabParentObject: {fileID: 442546, guid: 50c6b9037f3d7844aaa178be47acaedf, type: 2}
   m_PrefabInternal: {fileID: 786457282}
+--- !u!1 &2070541558
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 2070541560}
+  - component: {fileID: 2070541559}
+  m_Layer: 0
+  m_Name: ScoreManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2070541559
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2070541558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0473282f18634b168b5ccdb0aed4f6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  score: 0
+--- !u!4 &2070541560
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2070541558}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 185.42679, y: 5.398079, z: 115.81814}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 16
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2077189953
 GameObject:
   m_ObjectHideFlags: 0

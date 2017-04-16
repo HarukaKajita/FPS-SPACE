@@ -16,7 +16,6 @@ public class BulletController : MonoBehaviour {
 	[SerializeField] private GameObject landingEffect;  //着弾時のエフェクト
 	[SerializeField] private GameObject muzzleEffect;  //銃口のエフェクト
 	[SerializeField] private Vector3 muzzleEffectPosition;  //銃口エフェクトのポジション
-	[SerializeField] private Vector3 detail;  //着弾エフェクト生成座標の微調整のために定義
 	[SerializeField] private Vector3 landingEffectPosition;  //着弾エフェクト生成座標
 	[SerializeField] private bool canShot = true;  //銃を撃てる状態かどうか
 	[SerializeField] private bool onReloading = false; //リロード中かどうか
@@ -87,17 +86,9 @@ public class BulletController : MonoBehaviour {
 
 			RaycastHit hit;
 			if (Physics.Raycast (gunRay, out hit)) {//Rayのヒット判定
-				//ベクトルの足し算だと微妙に位置がおかしくなることと
-				//Update関数内でnewでメモリを確保するとメモリリークの原因になるのかなと思って回りくどい書き方になっています
-				detail.x = (transform.position - hit.point).normalized.x * 0.2f;
-				detail.y = (transform.position - hit.point).normalized.y * 0.2f;
-				detail.z = (transform.position - hit.point).normalized.z * 0.2f;
-
-				landingEffectPosition.x = hit.point.x + detail.x;
-				landingEffectPosition.y = hit.point.y + detail.y;
-				landingEffectPosition.z = hit.point.z + detail.z;
 
 				//ヒットした点にエフェクト生成見やすくするためにポシションをプレイヤーに少し近づくように設定してある(欠陥あり)
+				landingEffectPosition =  Vector3.Lerp(hit.point, transform.position, 0.02f);
 				landingEffect = (GameObject)Instantiate (EffectPrefab, landingEffectPosition, transform.rotation);
 				landingEffect.transform.rotation = transform.rotation;
 
